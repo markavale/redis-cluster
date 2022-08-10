@@ -1,0 +1,55 @@
+git clone https://key@github.com/markavale/redis-cluster
+wget https://download.redis.io/releases/redis-6.2.6.tar.gz
+tar -zxvf redis-6.2.6.tar.gz
+sudo apt-get install build-essential
+wget http://www.cmake.org/files/v3.0/cmake-3.0.0.tar.gz # not sure
+cd cmake-3.0.0/ # not sure
+cd redis-6.2.6/
+sudo make install PREFIX=/usr/local/redis
+sudo mkdir /etc/redis_0/
+sudo mkdir /etc/redis_1/
+sudo cp ~/redis-cluster/7000/redis.conf /etc/redis_0/redis.conf
+sudo cp ~/redis-cluster/7001/redis.conf /etc/redis_1/redis.conf
+sudo mkdir /var/lib/redis_0
+sudo mkdir /var/lib/redis_1
+sudo nano /etc/systemd/system/redis_0.service
+
+[Unit]
+Description=redis-server
+After=network.target
+[Service]
+Type=forking
+ExecStart=/usr/local/redis/bin/redis-server /etc/redis_0/redis.conf
+PrivateTmp=true
+ExecStop=/usr/local/redis/bin/redis-cli shutdown
+Restart=always
+[Install]
+
+sudo nano /etc/systemd/system/redis_1.service
+sudo systemctl daemon-reload
+sudo service redis_0 start
+sudo service redis_1 start
+
+
+
+
+
+
+# Notes
+
+Folder Backups
+/etc/redis_N/  -> conf
+/var/lib/redis_N -> rdb file
+
+# Removing Nodes
+https://redis.io/commands/cluster-forget/
+
+# scripting and manual configuring
+https://redis.io/docs/manual/scaling/
+
+# Use cases
+if service keeps on failing 
+if the current node in slave then deleting the file inside of /var/lib/redis_n/ should fix the issue
+after that restart the daemon
+
+redis-cli --cluster add-node 192.168.3.217:7004 0.0.0.0:7001 --cluster-slave --cluster-master-id 8abe6748fad13960c913b23a4414d830ea4dd9dc
