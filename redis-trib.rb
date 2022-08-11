@@ -293,7 +293,7 @@ end
 class RedisTrib
     def initialize
         @nodes = []
-        @fix = false
+        @fix = true
         @errors = []
         @timeout = MigrateDefaultTimeout
     end
